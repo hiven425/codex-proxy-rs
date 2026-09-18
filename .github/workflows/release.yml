@@ -1,6 +1,9 @@
 name: Release
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       tag:
@@ -12,12 +15,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: release-${{ inputs.tag }}
+  group: release-${{ inputs.tag || github.ref_name }}
   cancel-in-progress: false
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: zyycn/codex-proxy-rs
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   release-info:
@@ -40,14 +43,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ inputs.tag }}
+          ref: ${{ inputs.tag || github.ref_name }}
           fetch-depth: 0
 
       - name: Read release metadata
         id: version
         shell: bash
         env:
-          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
         run: |
           ruby <<'RUBY' >> "$GITHUB_OUTPUT"
           require "json"
@@ -504,7 +507,7 @@ jobs:
             org.opencontainers.image.title=Codex Proxy RS
             org.opencontainers.image.version=${{ needs.release-info.outputs.version }}
             org.opencontainers.image.revision=${{ needs.release-info.outputs.git_sha }}
-            org.opencontainers.image.source=https://github.com/zyycn/codex-proxy-rs
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ needs.release-info.outputs.git_sha }}-${{ matrix.arch }}
 
       - name: Verify exact app image digest

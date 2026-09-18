@@ -103,14 +103,14 @@ pub async fn initialize(
         repository.clone(),
         profile.clone(),
         http.clone(),
-        config.base_url().to_owned(),
+        config.auxiliary_base_url().to_owned(),
         ports.catalog_cache(),
     ));
     let quota = Arc::new(CodexCredentialQuotaService::new(
         repository.clone(),
         profile.clone(),
         http.clone(),
-        config.base_url().to_owned(),
+        config.auxiliary_base_url().to_owned(),
         ports.cooldowns(),
         Arc::clone(&leases),
         Arc::clone(&runtime_policy),
@@ -119,7 +119,7 @@ pub async fn initialize(
         repository.clone(),
         profile.clone(),
         http.clone(),
-        config.base_url().to_owned(),
+        config.auxiliary_base_url().to_owned(),
     ));
     let selector = Arc::new(CodexCredentialSelector::new(
         provider_kind.clone(),

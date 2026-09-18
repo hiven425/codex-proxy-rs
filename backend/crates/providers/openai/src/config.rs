@@ -70,6 +70,12 @@ impl OpenAiConfig {
         &self.api.base_url
     }
 
+    /// 返回额度、模型目录和个人资料等辅助请求使用的地址。
+    #[must_use]
+    pub fn auxiliary_base_url(&self) -> &str {
+        &self.api.auxiliary_base_url
+    }
+
     #[must_use]
     pub fn websocket_pool_config(&self) -> CodexWebSocketPoolConfig {
         self.ws_pool.pool_config()
@@ -130,12 +136,20 @@ impl Default for OpenAiConfig {
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq)]
 pub struct CodexApiConfig {
     pub base_url: String,
+    /// 与 Codex 主请求分离的辅助接口地址；省略时保持官方地址。
+    #[serde(default = "default_auxiliary_base_url")]
+    pub auxiliary_base_url: String,
+}
+
+fn default_auxiliary_base_url() -> String {
+    OFFICIAL_CODEX_BASE_URL.to_owned()
 }
 
 impl Default for CodexApiConfig {
     fn default() -> Self {
         Self {
             base_url: OFFICIAL_CODEX_BASE_URL.to_owned(),
+            auxiliary_base_url: default_auxiliary_base_url(),
         }
     }
 }
@@ -144,6 +158,11 @@ impl CodexApiConfig {
     fn validate(&self) -> Result<(), OpenAiConfigError> {
         if !crate::transport::valid_upstream_base_url(&self.base_url) {
             return Err(OpenAiConfigError::InvalidField("openai.api.base_url"));
+        }
+        if !crate::transport::valid_upstream_base_url(&self.auxiliary_base_url) {
+            return Err(OpenAiConfigError::InvalidField(
+                "openai.api.auxiliary_base_url",
+            ));
         }
         Ok(())
     }

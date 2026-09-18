@@ -236,6 +236,7 @@ async fn initialized_provider_keeps_thread_spawn_transport_conversations_distinc
         .await;
     let mut config = valid_config();
     config.config.api.base_url = server.uri();
+    config.config.api.auxiliary_base_url = server.uri();
     let bundle = provider_openai::initialize(
         config.config.clone(),
         provider_ports_with(store, Arc::new(TestOAuthPending::default())),
@@ -745,6 +746,7 @@ async fn openai_admin_quota_refresh_updates_the_account_plan() {
         .expect(1).mount(&server).await;
     let mut config = valid_config();
     config.config.api.base_url = server.uri();
+    config.config.api.auxiliary_base_url = server.uri();
     let bundle = provider_openai::initialize(
         config.config,
         provider_ports_with(store.clone(), Arc::new(TestOAuthPending::default())),
@@ -1243,6 +1245,7 @@ async fn reset_credit_admin(
         .await;
     let mut config = valid_config();
     config.config.api.base_url = server.uri();
+    config.config.api.auxiliary_base_url = server.uri();
     let bundle = provider_openai::initialize(
         config.config.clone(),
         provider_ports_with(store, Arc::new(TestOAuthPending::default())),

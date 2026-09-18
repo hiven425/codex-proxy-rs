@@ -7,9 +7,9 @@
 
 面向 Codex 的自托管多账号 AI 网关
 
-[![CI](https://github.com/zyycn/codex-proxy-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/zyycn/codex-proxy-rs/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/zyycn/codex-proxy-rs?display_name=tag&sort=semver&style=flat-square)](https://github.com/zyycn/codex-proxy-rs/releases)
-[![GHCR](https://img.shields.io/badge/GHCR-codex--proxy--rs-2496ED?logo=docker&logoColor=white&style=flat-square)](https://github.com/zyycn/codex-proxy-rs/pkgs/container/codex-proxy-rs)
+[![CI](https://github.com/hiven425/codex-proxy-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/hiven425/codex-proxy-rs/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/hiven425/codex-proxy-rs?display_name=tag&sort=semver&style=flat-square)](https://github.com/hiven425/codex-proxy-rs/releases)
+[![GHCR](https://img.shields.io/badge/GHCR-codex--proxy--rs-2496ED?logo=docker&logoColor=white&style=flat-square)](https://github.com/hiven425/codex-proxy-rs/pkgs/container/codex-proxy-rs)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
 
 [快速开始](#快速开始) · [客户端接入](#客户端接入) · [文档](#文档) · [社区](#社区) · [许可证](#许可证)
@@ -30,7 +30,7 @@
 请确保当前用户能访问 Docker，并可通过 `sudo` 或 root 设置目录权限。
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zyycn/codex-proxy-rs/main/deploy/install.sh -o install.sh && bash install.sh
+curl -fsSL https://raw.githubusercontent.com/hiven425/codex-proxy-rs/main/deploy/install.sh -o install.sh && bash install.sh
 ```
 
 [安装脚本](deploy/install.sh) 默认安装到当前目录下的 `codex-proxy-rs/`，下载同一正式 Release 的部署文件，

@@ -26,11 +26,11 @@
 mkdir -p codex-proxy-rs/deploy && cd codex-proxy-rs
 
 # 只解析一次最新正式版本，确保两个文件来自同一 Release。
-CPR_RELEASE_URL="$(curl -fsSL -o /dev/null -w '%{url_effective}' https://github.com/zyycn/codex-proxy-rs/releases/latest)"
+CPR_RELEASE_URL="$(curl -fsSL -o /dev/null -w '%{url_effective}' https://github.com/hiven425/codex-proxy-rs/releases/latest)"
 CPR_RELEASE_TAG="${CPR_RELEASE_URL##*/}"
-curl -fsSL "https://github.com/zyycn/codex-proxy-rs/releases/download/${CPR_RELEASE_TAG}/compose.yaml" \
+curl -fsSL "https://github.com/hiven425/codex-proxy-rs/releases/download/${CPR_RELEASE_TAG}/compose.yaml" \
   -o deploy/compose.yaml
-curl -fsSL "https://github.com/zyycn/codex-proxy-rs/releases/download/${CPR_RELEASE_TAG}/config.example.yaml" \
+curl -fsSL "https://github.com/hiven425/codex-proxy-rs/releases/download/${CPR_RELEASE_TAG}/config.example.yaml" \
   -o deploy/config.example.yaml
 
 install -d -m 0750 .runtime/postgres .runtime/redis
@@ -64,9 +64,20 @@ Linux 上应用容器以 `10001:10001` 运行。上述命令将应用数据和�
 配置设为 `0640`，均由当前用户持有、容器组 `10001` 访问。
 `config.yaml` 通过 Compose `configs` 只读挂载，普通 Compose 保留宿主机文件的 UID/GID 和 mode。
 
-模板中的 `openai` / `xai` 只保留请求画像启动基线。OpenAI 的上游地址、WebSocket 池、额度刷新
-与 OAuth 设置，以及 xAI 的 OAuth、额度和模型目录策略，均由各自 Provider 使用代码内默认值管理；
-模板不重复列出这些默认项。运行后，Provider 检查官方版本并更新运行时请求画像，
+模板中的 `openai` / `xai` 保留请求画像启动基线和必要的 Provider 覆盖项。OpenAI 的
+`openai.api.base_url` 控制 Codex 主请求，`openai.api.auxiliary_base_url` 控制额度、模型目录、
+个人资料和重置卡等辅助请求；辅助地址省略时使用官方地址。需要让第三方中转只承接 Codex 主请求时，
+将前者设为中转的 `/backend-api` 父路径，后者保持 `https://chatgpt.com/backend-api`，例如：
+
+```yaml
+openai:
+  api:
+    base_url: 'https://codex-relay.oaifree.com/backend-api'
+    auxiliary_base_url: 'https://chatgpt.com/backend-api'
+```
+
+Provider 会自动追加 `/codex/responses` 和 `/codex/models`，不要把 `/codex` 再写入 `base_url`。
+运行后，Provider 检查官方版本并更新运行时请求画像，
 不回写 `config.yaml`；检查失败时继续使用上一份有效画像。版本检查不等于重新核验 TLS。
 
 全局请求位置在管理端「系统设置 → 运行设置 → 请求时区与位置」配置，默认关闭，保留客户端原有位置和时区。
@@ -393,7 +404,7 @@ docker compose -f deploy/compose.yaml build codex-proxy-rs
 
 Compose 提供以下在线更新运行参数：
 
-- `CPR_UPDATE_REPOSITORY`：只接受 `owner/repository`；默认 `zyycn/codex-proxy-rs`。
+- `CPR_UPDATE_REPOSITORY`：只接受 `owner/repository`；默认 `hiven425/codex-proxy-rs`。
 - `CPR_GITHUB_API_BASE`：正式环境必须为 `https://api.github.com/repos`。
 - `CPR_UPDATE_CHANNEL`：`stable` 会拒绝 prerelease。
 - `CPR_UPDATE_EXE_PATH`、`CPR_WEB_DIST_DIR`：分别指向容器内二进制和前端静态目录；

@@ -95,6 +95,45 @@ fn openai_config_restricts_upstream_base_url_to_https_or_loopback_http() {
 }
 
 #[test]
+fn openai_config_keeps_auxiliary_requests_on_the_official_endpoint() {
+    let mut config = OpenAiConfig::default();
+    config.api.base_url = "https://codex-relay.oaifree.com/backend-api".to_owned();
+
+    config
+        .resolve_and_validate(Path::new("/srv/gateway"))
+        .expect("relay primary URL with official auxiliary URL");
+    assert_eq!(
+        config.base_url(),
+        "https://codex-relay.oaifree.com/backend-api"
+    );
+    assert_eq!(
+        config.auxiliary_base_url(),
+        "https://chatgpt.com/backend-api"
+    );
+
+    config.api.auxiliary_base_url = "https://auxiliary.example/backend-api".to_owned();
+    config
+        .resolve_and_validate(Path::new("/srv/gateway"))
+        .expect("custom auxiliary URL");
+    assert_eq!(
+        config.auxiliary_base_url(),
+        "https://auxiliary.example/backend-api"
+    );
+}
+
+#[test]
+fn openai_config_rejects_invalid_auxiliary_base_url() {
+    let mut config = OpenAiConfig::default();
+    config.api.auxiliary_base_url = "http://remote.example/backend-api".to_owned();
+
+    assert!(
+        config
+            .resolve_and_validate(Path::new("/srv/gateway"))
+            .is_err()
+    );
+}
+
+#[test]
 fn openai_config_defaults_to_the_provider_owned_operating_values() {
     let config = OpenAiConfig::default();
     assert_eq!(DEFAULT_STREAM_MAX_RETRIES, 5);
@@ -102,6 +141,7 @@ fn openai_config_defaults_to_the_provider_owned_operating_values() {
     assert_eq!(
         (
             config.api.base_url.as_str(),
+            config.api.auxiliary_base_url.as_str(),
             config.ws_pool.enabled,
             config.ws_pool.max_age_ms,
             config.ws_pool.max_connecting,
@@ -113,6 +153,7 @@ fn openai_config_defaults_to_the_provider_owned_operating_values() {
             config.stream_max_retries(),
         ),
         (
+            "https://chatgpt.com/backend-api",
             "https://chatgpt.com/backend-api",
             true,
             3_300_000,
